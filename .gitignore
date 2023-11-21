@@ -1,8 +1,9 @@
-*.egg-info
+*.done.log
+*.egg-info/
 *.swp
 .DS_Store
-.git_submodule_init.done.log
-.venv-pre-commit
+.idea/
+.venv-pre-commit/
 __pycache__
-build
-dist
+build/
+dist/

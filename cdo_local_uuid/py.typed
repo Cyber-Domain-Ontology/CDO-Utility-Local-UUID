@@ -1,7 +1,5 @@
-#!/usr/bin/make -f
-
-# Portions of this file contributed by NIST are governed by the
-# following statement:
+# Portions of this file contributed by NIST are governed by the following
+# statement:
 #
 # This software was developed at the National Institute of Standards
 # and Technology by employees of the Federal Government in the course
@@ -14,21 +12,5 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
-SHELL := /bin/bash
-
-top_srcdir := $(shell cd ../.. ; pwd)
-
-all:
-
-.PHONY: \
-  check-pytest
-
-check: \
-  check-pytest
-
-check-pytest:
-	source $(top_srcdir)/tests/venv/bin/activate \
-	  && pytest \
-	    --log-level=DEBUG
-
-clean:
+# This file is defined to support PEP 561:
+# https://www.python.org/dev/peps/pep-0561/

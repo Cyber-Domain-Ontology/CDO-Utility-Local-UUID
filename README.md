@@ -1,55 +1,62 @@
-# CASE Implementation Template: CLI Example
+# CDO Local UUID Utility
 
-[![Continuous Integration](https://github.com/casework/CASE-Implementation-Template-Python-CLI/actions/workflows/ci.yml/badge.svg)](https://github.com/casework/CASE-Implementation-Template-Python-CLI/actions/workflows/ci.yml)
-![CASE Version](https://img.shields.io/badge/CASE%20Version-1.2.0-green)
+[![Continuous Integration](https://github.com/Cyber-Domain-Ontology/CDO-Utility-Local-UUID/actions/workflows/cicd.yml/badge.svg)](https://github.com/Cyber-Domain-Ontology/CDO-Utility-Local-UUID/actions/workflows/cicd.yml)
 
-_(Please see the [NIST disclaimer](#disclaimer).)_
+This project provides a specialized UUID-generating function that can, on user request, cause a program to generate deterministic UUIDs.  Its main purpose is to assist with generating version-controllable example data using consistent identifiers.  This package intentionally includes mechanisms to make it difficult to activate this non-random mode without awareness of the caller.
 
-This template repository is provided for those looking to develop command-line utilities using ontologies within the [Cyber Domain Ontology](https://cyberdomainontology.org) ecosystem, particularly [CASE](https://caseontology.org) and [UCO](https://unifiedcyberontology.org).
 
-This template repository provides a [Make](https://en.wikipedia.org/wiki/Make_%28software%29)-based test workflow used in some other CASE projects.  The workflow exercises this project as a command-line interface (CLI) application (under [`tests/cli/`](tests/cli/)), and as a package (under [`tests/package/`](tests/package/)).
+## Disclaimer
 
-This is only one possible application development style, and templates are available to support other styles.  See for instance:
+Participation by NIST in the creation of the documentation of mentioned software is not intended to imply a recommendation or endorsement by the National Institute of Standards and Technology, nor is it intended to imply that any specific software is necessarily the best available for the purpose.
 
-* [casework/CASE-Mapping-Template-Python](https://github.com/casework/CASE-Mapping-Template-Python), which demonstrates an approach based on constructing Python `dict`s and checking generated results afterwards for CASE conformance with the [CASE Validation Action](https://github.com/kchason/case-validation-action).
 
-Testing procedures run in _this_ repository are:
+## Installation
 
-* _GitHub Actions_: [Workflows](.github/workflows/) are defined to run testing as they would be run in a local command-line environment, reviewing on pushes and pull requests to certain branches.
-* _Supply chain review_: [One workflow](.github/workflows/supply-chain.yml) checks dependencies on a schedule, confirming pinned dependencies are the latest, and loosely-pinned dependencies do not impact things like type review.
-* _Type review_: `mypy --strict` reviews the package source tree and the tests directory.
-* _Code style_: `pre-commit` reviews code patches in Continuous Integration testing and in local development.  Running `make` will install `pre-commit` in a special virtual environment dedicated to the cloned repository instance.
-* _Doctests_: Module docstrings' inlined tests are run with `pytest`.
-* _CASE validation_: Unit tests that generate CASE graph files are written to run `case_validate` before considering the file "successfully" built.
-* _Editable package installation_: The test suite installs the package in an "editable" mode into the virtual environment under `tests/venv/`.  Activating the virtual environment (e.g. for Bash users, running `source tests/venv/bin/activate` from the repository's top source directory) enables "live code" testing.
-* _Parallel Make runs_: Tests based on `make` have dependencies specified in a manner that enables `make --jobs` to run testing in parallel.
-* _Directory-local Make runs_: The Makefiles are written to run regardless of the present working directory within the top source directory or the [`tests/`](tests/) directory, assuming `make check` has been run from the top source directory at least once.  If a test is failing, `cd`'ing into that test's directory and running `make check` should reproduce the failure quickly and focus development effort.
+This repository can be installed from PyPI or from source.
+
+
+### Installing from PyPI
+
+```bash
+pip install cdo-local-uuid
+```
+
+### Installing from source
+
+Users who wish to install pre-release versions and/or make improvements to the code base should install in this manner.
+
+1. Clone this repository.
+2. (Optional) Create and activate a virtual environment.
+3. Run `pip install $x`, where `$x` is the path to the cloned repository.
+
+Local installation is demonstrated in the `.venv.done.log` target of the `tests/` directory's [`Makefile`](tests/Makefile).
 
 
 ## Usage
 
-To use the template, push the "Use this template" button on GitHub, and adapt files as suits your new project's needs.  The README should be revised at least from its top to the "Versioning" section.  Source files should be renamed and revised, and any other files with a `TODO` within it should be adjusted.
-
-After any revisions, running `make check` (or `make -j check`) from the top source directory should have unit tests continue to pass.
-
-_Below this line is sample text to use and adapt for your project.  Most text above this line is meant to document the template, rather than projects using the template._
-
-To install this software, clone this repository, and run `pip install .` from within this directory.  (You might want to do this in a virtual environment.)
-
-This provides a standalone command:
-
-```bash
-case_cli_example output.rdf
-```
-
-The tests build several examples of output for the command line mode, under [`tests/cli`](tests/cli/).
-
-The installation also provides a package to import:
+[This module](cdo_local_uuid/__init__.py) provides a wrapper UUID generator, `local_uuid()`.  It is intended to replace the Python call sequence `str(uuid.uuid4())`.  In the default behavior, the two idioms behave the same:
 
 ```python
-import case_cli_example
-help(case_cli_example.foo)
+>>> from uuid import uuid4
+>>> from cdo_local_uuid import local_uuid
+>>> str(uuid4())
+'168ec24a-4920-43f5-85ad-9c6088b0cad8'
+>>> local_uuid()
+'bd203d75-f3eb-40fe-a266-b447beadbd54'
 ```
+
+However, for some code-demonstration purposes, deterministic UUIDs might be desired, e.g. so a demonstration file including generated UUIDs can be regenerated and only change when the code changes, reducing version-control noise.
+
+To see how to configure UUID generation, see the `_demo_uuid` function in [this module](cdo_local_uuid/__init__.py).
+
+
+## Development status
+
+This repository follows [CASE community guidance on describing development status](https://caseontology.org/resources/software.html#development_status), by adherence to noted support requirements.
+
+The status of this repository is:
+
+4 - Beta
 
 
 ## Versioning
@@ -57,19 +64,18 @@ help(case_cli_example.foo)
 This project follows [SEMVER 2.0.0](https://semver.org/) where versions are declared.
 
 
+## Dependencies
+
+This repository's primary module was originally part of the [`case-utils`](https://github.com/casework/CASE-Utilities-Python) package.  It was separated to provide a package with no runtime dependencies outside of the Python standard library.
+
+
 ## Make targets
 
 Some `make` targets are defined for this repository:
-* `all` - Installs `pre-commit` for this cloned repository instance.
-* `check` - Run unit tests.  *NOTE*: The tests entail an installation of this project's source tree, including prerequisites downloaded from PyPI.
-* `clean` - Remove test build files.
+* `check` - Run unit tests.
+* `clean` - Remove test build files, but not downloaded files.
 
 
 ## Licensing
 
 Portions of this repository contributed by NIST are governed by the [NIST Software Licensing Statement](LICENSE#nist-software-licensing-statement).
-
-
-## Disclaimer
-
-Participation by NIST in the creation of the documentation of mentioned software is not intended to imply a recommendation or endorsement by the National Institute of Standards and Technology, nor is it intended to imply that any specific software is necessarily the best available for the purpose.

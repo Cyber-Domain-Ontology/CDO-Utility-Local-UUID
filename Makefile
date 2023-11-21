@@ -23,13 +23,7 @@ all: \
 
 .PHONY: \
   check-supply-chain \
-  check-supply-chain-mypy \
   check-supply-chain-pre-commit
-
-.git_submodule_init.done.log: \
-  .gitmodules
-	git submodule update --init
-	touch $@
 
 # This virtual environment is meant to be built once and then persist, even through 'make clean'.
 # If a recipe is written to remove this flag file, it should first run `pre-commit uninstall`.
@@ -55,7 +49,6 @@ all: \
 	touch $@
 
 check: \
-  check-supply-chain-mypy \
   .venv-pre-commit/var/.pre-commit-built.log
 	$(MAKE) \
 	  PYTHON3=$(PYTHON3) \
@@ -64,16 +57,9 @@ check: \
 
 # This target's dependencies potentially modify the working directory's Git state, so it is intentionally not a dependency of check.
 check-supply-chain: \
-  check-supply-chain-pre-commit \
-  check-supply-chain-mypy
+  check-supply-chain-pre-commit
 
-check-supply-chain-mypy: \
-  .git_submodule_init.done.log
-	$(MAKE) \
-	  PYTHON3=$(PYTHON3) \
-	  --directory tests \
-	  check-mypy
-
+# This target is scheduled to run as part of prerelease review.
 check-supply-chain-pre-commit: \
   .venv-pre-commit/var/.pre-commit-built.log
 	source .venv-pre-commit/bin/activate \
@@ -83,12 +69,13 @@ check-supply-chain-pre-commit: \
 	  .pre-commit-config.yaml
 
 clean:
-	@rm -rf \
-	  *.egg-info \
-	  build \
-	  dist
 	@$(MAKE) \
 	  --directory tests \
 	  clean
-	@rm -f \
-	  .git_submodule_init.done.log
+
+distclean: \
+  clean
+	@rm -rf \
+	  build \
+	  *.egg-info \
+	  dist

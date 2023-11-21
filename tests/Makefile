@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
-# Portions of this file contributed by NIST are governed by the
-# following statement:
+# Portions of this file contributed by NIST are governed by the following
+# statement:
 #
 # This software was developed at the National Institute of Standards
 # and Technology by employees of the Federal Government in the course
@@ -20,15 +20,13 @@ top_srcdir := $(shell cd .. ; pwd)
 
 PYTHON3 ?= python3
 
-# Dependencies are listed here in desired execution-progression order.
 all:
 
 .PHONY: \
-  check-cli \
+  check-doctest \
   check-mypy
 
 .venv.done.log: \
-  $(top_srcdir)/.git_submodule_init.done.log \
   $(top_srcdir)/setup.cfg \
   $(top_srcdir)/setup.py
 	rm -rf venv
@@ -41,23 +39,19 @@ all:
 	    setuptools \
 	    wheel
 	source venv/bin/activate \
-	  && pip install \
-	    --editable \
-	    $(top_srcdir)[testing]
+	  && cd $(top_srcdir) \
+	    && pip install \
+	      --editable \
+	      .[testing]
 	touch $@
 
-# Dependencies are listed here in desired execution-progression order.
+# These check calls are provided in preferred run-order.
 check: \
   check-mypy \
-  check-doctest \
-  check-cli \
-  check-package
-
-check-cli: \
-  .venv.done.log
-	$(MAKE) \
-	  --directory cli \
-	  check
+  check-doctest
+	source venv/bin/activate \
+	  && pytest \
+	    --log-level=DEBUG
 
 check-doctest: \
   .venv.done.log
@@ -65,13 +59,7 @@ check-doctest: \
 	  && pytest \
 	    --doctest-modules \
 	    --log-level=DEBUG \
-	    $(top_srcdir)/case_cli_example
-
-check-package: \
-  .venv.done.log
-	$(MAKE) \
-	  --directory package \
-	  check
+	    $(top_srcdir)/cdo_local_uuid
 
 check-mypy: \
   .venv.done.log
@@ -79,11 +67,12 @@ check-mypy: \
 	  && mypy \
 	    --exclude venv \
 	    --strict \
-	    $(top_srcdir)/case_cli_example \
+	    $(top_srcdir)/cdo_local_uuid \
 	    .
 
 clean:
 	@rm -f \
 	  .venv.done.log
 	@rm -rf \
+	  .pytest_cache \
 	  venv
