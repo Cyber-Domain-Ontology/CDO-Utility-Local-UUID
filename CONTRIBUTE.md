@@ -1,5 +1,10 @@
 # Contributing to CDO-Utility-Local-UUID
 
+This repository follows [CDO "Git-flow" branching](https://cyberdomainontology.org/ontology/development/#branching-cdo-git-flow).  In short:
+
+* Please file Pull Requests against `develop`.
+* If you wish to track this repository at a certain version, please use Git submodules to note what version you tracked.
+
 This project uses [the `pre-commit` tool](https://pre-commit.com/) for linting.  The easiest way to install it is with `pip`:
 ```bash
 pip install pre-commit
