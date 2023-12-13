@@ -47,25 +47,32 @@ def configure() -> None:
 
     if os.getenv("DEMO_UUID_REQUESTING_NONRANDOM") == "NONRANDOM_REQUESTED":
         warnings.warn(
-            "Environment variable DEMO_UUID_REQUESTING_NONRANDOM is deprecated.  See case_utils.local_uuid._demo_uuid for usage notes on its replacement, CASE_DEMO_NONRANDOM_UUID_BASE.  Proceeding with random UUIDs.",
+            "Environment variable DEMO_UUID_REQUESTING_NONRANDOM is deprecated.  See cdo_local_uuid._demo_uuid for usage notes on its replacement, CDO_DEMO_NONRANDOM_UUID_BASE.  Proceeding with random UUIDs.",
             FutureWarning,
         )
         return
 
-    env_base_dir_name = os.getenv("CASE_DEMO_NONRANDOM_UUID_BASE")
+    if os.getenv("CASE_DEMO_NONRANDOM_UUID_BASE") is not None:
+        warnings.warn(
+            "Environment variable CASE_DEMO_NONRANDOM_UUID_BASE is deprecated.  Its replacement variable is CDO_DEMO_NONRANDOM_UUID_BASE.  Proceeding with random UUIDs.",
+            FutureWarning,
+        )
+        return
+
+    env_base_dir_name = os.getenv("CDO_DEMO_NONRANDOM_UUID_BASE")
     if env_base_dir_name is None:
         return
 
     base_dir_original_path = pathlib.Path(env_base_dir_name)
     if not base_dir_original_path.exists():
         warnings.warn(
-            "Environment variable CASE_DEMO_NONRANDOM_UUID_BASE is expected to refer to an existing directory.  Proceeding with random UUIDs.",
+            "Environment variable CDO_DEMO_NONRANDOM_UUID_BASE is expected to refer to an existing directory.  Proceeding with random UUIDs.",
             RuntimeWarning,
         )
         return
     if not base_dir_original_path.is_dir():
         warnings.warn(
-            "Environment variable CASE_DEMO_NONRANDOM_UUID_BASE is expected to refer to a directory.  Proceeding with random UUIDs.",
+            "Environment variable CDO_DEMO_NONRANDOM_UUID_BASE is expected to refer to a directory.  Proceeding with random UUIDs.",
             RuntimeWarning,
         )
         return
@@ -73,7 +80,7 @@ def configure() -> None:
     # Component: An emphasis this is an example.
     demo_uuid_base_parts = ["example.org"]
 
-    # Component: Present working directory, relative to CASE_DEMO_NONRANDOM_UUID_BASE if that environment variable is an ancestor of pwd.
+    # Component: Present working directory, relative to CDO_DEMO_NONRANDOM_UUID_BASE if that environment variable is an ancestor of pwd.
     base_dir_resolved_path = base_dir_original_path.resolve()
     srcdir_original_path = pathlib.Path(os.getcwd())
     srcdir_resolved_path = srcdir_original_path.resolve()
@@ -126,15 +133,15 @@ def _demo_uuid() -> str:
 
     To prevent accidental non-random UUID usage, two setup steps need to be done before calling this function:
 
-    * An environment variable, CASE_DEMO_NONRANDOM_UUID_BASE, must be set to a string provided by the caller.  The variable's required value is the path to some directory.  The variable's recommended value is the equivalent of the Make variable "top_srcdir" - that is, the root directory of the containing Git repository, some parent of the current process's current working directory.
+    * An environment variable, CDO_DEMO_NONRANDOM_UUID_BASE, must be set to a string provided by the caller.  The variable's required value is the path to some directory.  The variable's recommended value is the equivalent of the Make variable "top_srcdir" - that is, the root directory of the containing Git repository, some parent of the current process's current working directory.
     * The configure() function in this module must be called.
     """
     global DEMO_UUID_BASE
     global DEMO_UUID_COUNTER
 
-    if os.getenv("CASE_DEMO_NONRANDOM_UUID_BASE") is None:
+    if os.getenv("CDO_DEMO_NONRANDOM_UUID_BASE") is None:
         raise ValueError(
-            "demo_uuid() called without CASE_DEMO_NONRANDOM_UUID_BASE in environment."
+            "demo_uuid() called without CDO_DEMO_NONRANDOM_UUID_BASE in environment."
         )
 
     if DEMO_UUID_BASE is None:
