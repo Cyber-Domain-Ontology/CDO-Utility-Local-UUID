@@ -39,6 +39,20 @@ DEMO_UUID_COUNTER: int = 0
 _logger = logging.getLogger(pathlib.Path(__file__).name)
 
 
+def _is_relative_to(p1: pathlib.Path, p2: pathlib.Path) -> bool:
+    """
+    This function provides pathlib.is_relative_to to Pythons before 3.9.  After the End of Life of Python 3.8, this function can be removed.
+    """
+    if sys.version_info < (3, 9):
+        try:
+            _ = p1.relative_to(p2)
+            return True
+        except ValueError:
+            return False
+    else:
+        return p1.is_relative_to(p2)
+
+
 def configure() -> None:
     """
     This function is part of setting up _demo_uuid() to generate non-random UUIDs.  See _demo_uuid() documentation for further setup notes.
@@ -105,7 +119,7 @@ def configure() -> None:
         # environment.
         venv_original_path = pathlib.Path(env_venv_name)
         venv_resolved_path = venv_original_path.resolve()
-        if command_resolved_path.is_relative_to(venv_resolved_path):
+        if _is_relative_to(command_resolved_path, venv_resolved_path):
             command_relative_path = command_resolved_path.relative_to(
                 venv_resolved_path
             )
