@@ -45,6 +45,8 @@ def configure() -> None:
     """
     global DEMO_UUID_BASE
 
+    # _logger.debug("sys.argv = %r.", sys.argv)
+
     if os.getenv("DEMO_UUID_REQUESTING_NONRANDOM") == "NONRANDOM_REQUESTED":
         warnings.warn(
             "Environment variable DEMO_UUID_REQUESTING_NONRANDOM is deprecated.  See case_utils.local_uuid._demo_uuid for usage notes on its replacement, CASE_DEMO_NONRANDOM_UUID_BASE.  Proceeding with random UUIDs.",
@@ -94,18 +96,23 @@ def configure() -> None:
         demo_uuid_base_parts.append(sys.argv[0])
     else:
         command_original_path = pathlib.Path(sys.argv[0])
+        # _logger.debug("command_original_path = %r.", command_original_path)
         command_resolved_path = command_original_path.resolve()
+        # _logger.debug("command_resolved_path = %r.", command_resolved_path)
+
+        # The command could be a command embedded in a virtual
+        # environment, or it could be a script external to any virtual
+        # environment.
         venv_original_path = pathlib.Path(env_venv_name)
         venv_resolved_path = venv_original_path.resolve()
-        try:
+        if command_resolved_path.is_relative_to(venv_resolved_path):
             command_relative_path = command_resolved_path.relative_to(
                 venv_resolved_path
             )
             # _logger.debug("command_relative_path = %r.", command_relative_path)
             demo_uuid_base_parts.append(str(command_relative_path))
-        except ValueError:
-            # _logger.debug("Command path is not relative to virtual environment path.")
-            demo_uuid_base_parts.append(str(command_resolved_path))
+        else:
+            demo_uuid_base_parts.append(str(command_original_path))
 
     if len(sys.argv) > 1:
         # Component: Arguments of argument vector.
