@@ -1,3 +1,5 @@
+#!/usr/bin/make -f
+
 # Portions of this file contributed by NIST are governed by the
 # following statement:
 #
@@ -12,5 +14,42 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
-# This file is defined to support PEP 561:
-# https://www.python.org/dev/peps/pep-0561/
+SHELL := /bin/bash
+
+top_srcdir := $(shell cd ../.. ; pwd)
+
+all: \
+  all-project_1 \
+  all-project_2
+
+all-project_1: \
+  $(top_srcdir)/tests/.venv.done.log
+	$(MAKE) \
+	  --directory project_1
+
+all-project_2: \
+  $(top_srcdir)/tests/.venv.done.log
+	$(MAKE) \
+	  --directory project_2
+
+check: \
+  all
+	source $(top_srcdir)/tests/venv/bin/activate \
+	  && pytest \
+	    --log-level=DEBUG \
+	    --verbose \
+	    test_outputs.py
+
+clean: \
+  clean-project_1 \
+  clean-project_2
+
+clean-project_1:
+	@$(MAKE) \
+	  --directory project_1 \
+	  clean
+
+clean-project_2:
+	@$(MAKE) \
+	  --directory project_2 \
+	  clean

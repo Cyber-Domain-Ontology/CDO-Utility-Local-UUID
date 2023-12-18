@@ -1,3 +1,5 @@
+#!/usr/bin/make -f
+
 # Portions of this file contributed by NIST are governed by the
 # following statement:
 #
@@ -12,5 +14,4 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
-# This file is defined to support PEP 561:
-# https://www.python.org/dev/peps/pep-0561/
+include ../../editability_x_dir_1.mk
