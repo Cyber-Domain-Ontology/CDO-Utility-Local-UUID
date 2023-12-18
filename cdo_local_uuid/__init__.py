@@ -78,6 +78,7 @@ def configure() -> None:
     env_base_dir_name = os.getenv("CDO_DEMO_NONRANDOM_UUID_BASE")
     if env_base_dir_name is None:
         return
+    # _logger.debug("env_base_dir_name = %r.", env_base_dir_name)
 
     base_dir_original_path = pathlib.Path(env_base_dir_name)
     if not base_dir_original_path.exists():

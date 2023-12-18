@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Portions of this file contributed by NIST are governed by the
 # following statement:
 #
@@ -12,5 +14,10 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
-# This file is defined to support PEP 561:
-# https://www.python.org/dev/peps/pep-0561/
+import logging
+
+import cdo_local_uuid
+
+logging.basicConfig(level=logging.DEBUG)
+cdo_local_uuid.configure()
+print(cdo_local_uuid.local_uuid())

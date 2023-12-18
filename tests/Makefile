@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
-# Portions of this file contributed by NIST are governed by the following
-# statement:
+# Portions of this file contributed by NIST are governed by the
+# following statement:
 #
 # This software was developed at the National Institute of Standards
 # and Technology by employees of the Federal Government in the course
@@ -48,10 +48,10 @@ all:
 # These check calls are provided in preferred run-order.
 check: \
   check-mypy \
-  check-doctest
-	source venv/bin/activate \
-	  && pytest \
-	    --log-level=DEBUG
+  check-doctest \
+  check-pytest \
+  check-relativity_to_venv \
+  check-varying_top_srcdir
 
 check-doctest: \
   .venv.done.log
@@ -65,10 +65,32 @@ check-mypy: \
   .venv.done.log
 	source venv/bin/activate \
 	  && mypy \
+	    --exclude varying_top_srcdir \
 	    --exclude venv \
 	    --strict \
 	    $(top_srcdir)/cdo_local_uuid \
 	    .
+
+check-pytest: \
+  .venv.done.log
+	source venv/bin/activate \
+	  && pytest \
+	    --ignore relativity_to_venv \
+	    --ignore varying_top_srcdir \
+	    --log-level=DEBUG
+
+check-relativity_to_venv: \
+  .venv.done.log
+	$(MAKE) \
+	  PYTHON3=$(PYTHON3) \
+	  --directory relativity_to_venv \
+	  check
+
+check-varying_top_srcdir: \
+  .venv.done.log
+	$(MAKE) \
+	  --directory varying_top_srcdir \
+	  check
 
 clean:
 	@rm -f \
