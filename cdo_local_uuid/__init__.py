@@ -20,7 +20,7 @@ This library is a wrapper for uuid, provided to generate repeatable UUIDs if req
 The function local_uuid() should be used in code where a user could be expected to opt in to non-random UUIDs.
 """
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 __all__ = ["configure", "local_uuid"]
 
@@ -39,33 +39,57 @@ DEMO_UUID_COUNTER: int = 0
 _logger = logging.getLogger(pathlib.Path(__file__).name)
 
 
+def _is_relative_to(p1: pathlib.Path, p2: pathlib.Path) -> bool:
+    """
+    This function provides pathlib.is_relative_to to Pythons before 3.9.  After the End of Life of Python 3.8, this function can be removed.
+    """
+    if sys.version_info < (3, 9):
+        try:
+            _ = p1.relative_to(p2)
+            return True
+        except ValueError:
+            return False
+    else:
+        return p1.is_relative_to(p2)
+
+
 def configure() -> None:
     """
     This function is part of setting up _demo_uuid() to generate non-random UUIDs.  See _demo_uuid() documentation for further setup notes.
     """
     global DEMO_UUID_BASE
 
+    # _logger.debug("sys.argv = %r.", sys.argv)
+
     if os.getenv("DEMO_UUID_REQUESTING_NONRANDOM") == "NONRANDOM_REQUESTED":
         warnings.warn(
-            "Environment variable DEMO_UUID_REQUESTING_NONRANDOM is deprecated.  See case_utils.local_uuid._demo_uuid for usage notes on its replacement, CASE_DEMO_NONRANDOM_UUID_BASE.  Proceeding with random UUIDs.",
+            "Environment variable DEMO_UUID_REQUESTING_NONRANDOM is deprecated.  See cdo_local_uuid._demo_uuid for usage notes on its replacement, CDO_DEMO_NONRANDOM_UUID_BASE.  Proceeding with random UUIDs.",
             FutureWarning,
         )
         return
 
-    env_base_dir_name = os.getenv("CASE_DEMO_NONRANDOM_UUID_BASE")
+    if os.getenv("CASE_DEMO_NONRANDOM_UUID_BASE") is not None:
+        warnings.warn(
+            "Environment variable CASE_DEMO_NONRANDOM_UUID_BASE is deprecated.  Its replacement variable is CDO_DEMO_NONRANDOM_UUID_BASE.  Proceeding with random UUIDs.",
+            FutureWarning,
+        )
+        return
+
+    env_base_dir_name = os.getenv("CDO_DEMO_NONRANDOM_UUID_BASE")
     if env_base_dir_name is None:
         return
+    # _logger.debug("env_base_dir_name = %r.", env_base_dir_name)
 
     base_dir_original_path = pathlib.Path(env_base_dir_name)
     if not base_dir_original_path.exists():
         warnings.warn(
-            "Environment variable CASE_DEMO_NONRANDOM_UUID_BASE is expected to refer to an existing directory.  Proceeding with random UUIDs.",
+            "Environment variable CDO_DEMO_NONRANDOM_UUID_BASE is expected to refer to an existing directory.  Proceeding with random UUIDs.",
             RuntimeWarning,
         )
         return
     if not base_dir_original_path.is_dir():
         warnings.warn(
-            "Environment variable CASE_DEMO_NONRANDOM_UUID_BASE is expected to refer to a directory.  Proceeding with random UUIDs.",
+            "Environment variable CDO_DEMO_NONRANDOM_UUID_BASE is expected to refer to a directory.  Proceeding with random UUIDs.",
             RuntimeWarning,
         )
         return
@@ -73,7 +97,7 @@ def configure() -> None:
     # Component: An emphasis this is an example.
     demo_uuid_base_parts = ["example.org"]
 
-    # Component: Present working directory, relative to CASE_DEMO_NONRANDOM_UUID_BASE if that environment variable is an ancestor of pwd.
+    # Component: Present working directory, relative to CDO_DEMO_NONRANDOM_UUID_BASE if that environment variable is an ancestor of pwd.
     base_dir_resolved_path = base_dir_original_path.resolve()
     srcdir_original_path = pathlib.Path(os.getcwd())
     srcdir_resolved_path = srcdir_original_path.resolve()
@@ -94,18 +118,23 @@ def configure() -> None:
         demo_uuid_base_parts.append(sys.argv[0])
     else:
         command_original_path = pathlib.Path(sys.argv[0])
+        # _logger.debug("command_original_path = %r.", command_original_path)
         command_resolved_path = command_original_path.resolve()
+        # _logger.debug("command_resolved_path = %r.", command_resolved_path)
+
+        # The command could be a command embedded in a virtual
+        # environment, or it could be a script external to any virtual
+        # environment.
         venv_original_path = pathlib.Path(env_venv_name)
         venv_resolved_path = venv_original_path.resolve()
-        try:
+        if _is_relative_to(command_resolved_path, venv_resolved_path):
             command_relative_path = command_resolved_path.relative_to(
                 venv_resolved_path
             )
             # _logger.debug("command_relative_path = %r.", command_relative_path)
             demo_uuid_base_parts.append(str(command_relative_path))
-        except ValueError:
-            # _logger.debug("Command path is not relative to virtual environment path.")
-            demo_uuid_base_parts.append(str(command_resolved_path))
+        else:
+            demo_uuid_base_parts.append(str(command_original_path))
 
     if len(sys.argv) > 1:
         # Component: Arguments of argument vector.
@@ -126,15 +155,15 @@ def _demo_uuid() -> str:
 
     To prevent accidental non-random UUID usage, two setup steps need to be done before calling this function:
 
-    * An environment variable, CASE_DEMO_NONRANDOM_UUID_BASE, must be set to a string provided by the caller.  The variable's required value is the path to some directory.  The variable's recommended value is the equivalent of the Make variable "top_srcdir" - that is, the root directory of the containing Git repository, some parent of the current process's current working directory.
+    * An environment variable, CDO_DEMO_NONRANDOM_UUID_BASE, must be set to a string provided by the caller.  The variable's required value is the path to some directory.  The variable's recommended value is the equivalent of the Make variable "top_srcdir" - that is, the root directory of the containing Git repository, some parent of the current process's current working directory.
     * The configure() function in this module must be called.
     """
     global DEMO_UUID_BASE
     global DEMO_UUID_COUNTER
 
-    if os.getenv("CASE_DEMO_NONRANDOM_UUID_BASE") is None:
+    if os.getenv("CDO_DEMO_NONRANDOM_UUID_BASE") is None:
         raise ValueError(
-            "demo_uuid() called without CASE_DEMO_NONRANDOM_UUID_BASE in environment."
+            "demo_uuid() called without CDO_DEMO_NONRANDOM_UUID_BASE in environment."
         )
 
     if DEMO_UUID_BASE is None:

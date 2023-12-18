@@ -1,3 +1,5 @@
+#!/usr/bin/make -f
+
 # Portions of this file contributed by NIST are governed by the
 # following statement:
 #
@@ -12,5 +14,45 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
-# This file is defined to support PEP 561:
-# https://www.python.org/dev/peps/pep-0561/
+SHELL := /bin/bash
+
+top_srcdir := $(shell cd ../.. ; pwd)
+
+PYTHON3 ?= python3
+
+all: \
+  all-editability_no \
+  all-editability_yes
+
+all-editability_no:
+	$(MAKE) \
+	  --directory editability_no
+
+all-editability_yes:
+	$(MAKE) \
+	  --directory editability_yes
+
+check: \
+  all
+
+check: \
+  all
+	source $(top_srcdir)/tests/venv/bin/activate \
+	  && pytest \
+	    --log-level=DEBUG \
+	    --verbose \
+	    test_outputs.py
+
+clean: \
+  clean-editability_no \
+  clean-editability_yes
+
+clean-editability_no:
+	@$(MAKE) \
+	  --directory editability_no \
+	  clean
+
+clean-editability_yes:
+	@$(MAKE) \
+	  --directory editability_yes \
+	  clean

@@ -25,13 +25,19 @@ def test_local_uuid_deprecation(monkeypatch: pytest.MonkeyPatch) -> None:
         cdo_local_uuid.configure()
 
 
-def test_local_uuid_nondirectory(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_case_local_uuid_deprecation(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CASE_DEMO_NONRANDOM_UUID_BASE", "/dev/null")
+    with pytest.warns(FutureWarning):
+        cdo_local_uuid.configure()
+
+
+def test_local_uuid_nondirectory(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CDO_DEMO_NONRANDOM_UUID_BASE", "/dev/null")
     with pytest.warns(RuntimeWarning):
         cdo_local_uuid.configure()
 
 
 def test_local_uuid_nonexistent(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("CASE_DEMO_NONRANDOM_UUID_BASE", "/dev/nonexistent")
+    monkeypatch.setenv("CDO_DEMO_NONRANDOM_UUID_BASE", "/dev/nonexistent")
     with pytest.warns(RuntimeWarning):
         cdo_local_uuid.configure()
