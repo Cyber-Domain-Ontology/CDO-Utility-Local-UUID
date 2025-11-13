@@ -67,7 +67,7 @@ jobs:
 
     # Upload the packages on all develop and main pipelines for test consumption
     - name: Upload HTML Docs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: packages-${{ matrix.python-version }}
         path: ./dist/
