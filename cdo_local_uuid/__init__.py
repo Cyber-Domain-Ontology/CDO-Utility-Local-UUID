@@ -158,7 +158,6 @@ def _demo_uuid() -> str:
     * An environment variable, CDO_DEMO_NONRANDOM_UUID_BASE, must be set to a string provided by the caller.  The variable's required value is the path to some directory.  The variable's recommended value is the equivalent of the Make variable "top_srcdir" - that is, the root directory of the containing Git repository, some parent of the current process's current working directory.
     * The configure() function in this module must be called.
     """
-    global DEMO_UUID_BASE
     global DEMO_UUID_COUNTER
 
     if os.getenv("CDO_DEMO_NONRANDOM_UUID_BASE") is None:
@@ -188,7 +187,6 @@ def local_uuid() -> str:
     >>> # To get a UUID object, e.g. to verify syntax, feed local_uuid's string output into the UUID constructor.
     >>> u = UUID(lu)
     """
-    global DEMO_UUID_BASE
     if DEMO_UUID_BASE is None:
         return str(uuid.uuid4())
     else:
